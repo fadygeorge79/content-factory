@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Content Factory — by TAC Universe</title>
+<title>Content Factory — by Fady George</title>
 
 <!-- Brand font -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +18,7 @@
 
 <style>
 /* ============================================================
-   CONTENT FACTORY — TAC UNIVERSE
+   CONTENT FACTORY — FADY GEORGE
    Black + signature yellow (#feda00) + Montserrat.
    ============================================================ */
 :root{
@@ -399,9 +399,26 @@ textarea.field{resize:vertical;line-height:1.55}
   .chat-head,.composer,.messages .msg,.chat-instr{padding-left:18px;padding-right:18px}
 }
 .scrim{display:none}
+/* auth screen */
+#authScreen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;animation:fade .3s ease}
+#authScreen .auth-box{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--r-lg);padding:40px 30px;width:100%;max-width:380px;text-align:center;box-shadow:var(--shadow)}
+#authScreen h2{font-weight:900;font-size:24px;margin-bottom:8px}
 </style>
 </head>
 <body>
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="spark" style="margin:0 auto 20px"></div>
+    <h2>Content Factory</h2>
+    <p style="color:var(--text-dim);font-size:13px;font-weight:600;margin-bottom:24px;line-height:1.5">Enter password to access the workspace.</p>
+    <div class="fieldset" style="margin-bottom:16px">
+      <input type="password" id="authPass" class="field" placeholder="Password" style="text-align:center">
+    </div>
+    <button class="btn btn-y" id="authBtn" style="width:100%">Unlock Workspace</button>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- ============ PROJECTS RAIL ============ -->
@@ -411,7 +428,7 @@ textarea.field{resize:vertical;line-height:1.55}
         <div class="spark"></div>
         <div>
           <div class="brand-name">CONTENT <span>FACTORY</span></div>
-          <div class="brand-sub">Powered by TAC Universe</div>
+          <div class="brand-sub">Powered by Fady George</div>
         </div>
       </div>
     </div>
@@ -602,7 +619,7 @@ textarea.field{resize:vertical;line-height:1.55}
     <div class="modal-body">
       <div class="note">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7v6c0 5 4 9 10 11 6-2 10-6 10-11V7L12 2z"/></svg>
-        <span>Your key is stored <strong>only in this browser</strong> (localStorage) and is sent <strong>directly</strong> to your chosen provider — never to TAC Universe or anyone else.</span>
+        <span>Your key is stored <strong>only in this browser</strong> (localStorage) and is sent <strong>directly</strong> to your chosen provider — never to Fady George or anyone else.</span>
       </div>
 
       <div class="fieldset" style="margin-top:18px">
@@ -704,6 +721,23 @@ textarea.field{resize:vertical;line-height:1.55}
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
 }
+
+/* ---------- auth ---------- */
+const AUTH_PASS = '01273774307';
+if (localStorage.getItem('cf_auth') === '1') {
+  document.getElementById('authScreen').style.display = 'none';
+}
+document.getElementById('authBtn').onclick = () => {
+  if (document.getElementById('authPass').value === AUTH_PASS) {
+    localStorage.setItem('cf_auth', '1');
+    document.getElementById('authScreen').style.display = 'none';
+  } else {
+    toast('Incorrect password', 'err');
+  }
+};
+document.getElementById('authPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('authBtn').click();
+});
 
 /* ---------- storage ---------- */
 const LS = { projects:'cf_projects', settings:'cf_settings', active:'cf_active' };

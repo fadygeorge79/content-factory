@@ -1,4 +1,4 @@
-# Content Factory — by TAC Universe
+# Content Factory — by Fady George
 
 A powerful content workspace that mimics Claude Projects. Build brand-specific content factories with system prompts, skills, briefing files, and unlimited AI-powered chats.
 
@@ -28,4 +28,4 @@ Just open `index.html` in your browser. No build step, no server, no dependencie
 
 ## License
 
-© TAC Universe. All rights reserved.
+© Fady George. All rights reserved.
