@@ -33,6 +33,11 @@ export function renderRail(container, projects, activeProjectId, callbacks, user
               <div class="rail-item-name">${escHtml(p.name)}</div>
               ${p.brandName ? `<div class="rail-item-meta">${escHtml(p.brandName)}</div>` : ''}
             </div>
+            <div class="rail-item-actions">
+              <button class="rail-action-btn" data-action="share" data-id="${p.id}" title="Share">🤝</button>
+              <button class="rail-action-btn" data-action="rename" data-id="${p.id}" title="Rename">✏️</button>
+              <button class="rail-action-btn" data-action="delete" data-id="${p.id}" title="Delete">🗑️</button>
+            </div>
           </div>
         `).join('')}
       </div>
@@ -61,8 +66,21 @@ export function renderRail(container, projects, activeProjectId, callbacks, user
 
   // Event: Select Project
   container.querySelectorAll('.rail-item').forEach(el => {
-    el.addEventListener('click', () => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('.rail-action-btn')) return;
       callbacks.onSelectProject(el.dataset.id);
+    });
+  });
+
+  // Event: Rail Actions
+  container.querySelectorAll('.rail-action-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      if (action === 'share' && callbacks.onShareProject) callbacks.onShareProject(id);
+      if (action === 'rename' && callbacks.onRenameProject) callbacks.onRenameProject(id);
+      if (action === 'delete' && callbacks.onDeleteProject) callbacks.onDeleteProject(id);
     });
   });
 

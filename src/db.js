@@ -10,10 +10,11 @@ import { db } from './firebase.js';
 /**
  * Create a new project.
  */
-export async function createProject(userId, { name, brandName, accent }) {
+export async function createProject(userId, email, { name, brandName, accent }) {
   const ref = doc(collection(db, 'projects'));
   const data = {
     ownerId: userId,
+    memberEmails: [email],
     name: name || 'Untitled Project',
     brandName: brandName || '',
     accent: accent || '#facc15',
@@ -29,11 +30,13 @@ export async function createProject(userId, { name, brandName, accent }) {
 /**
  * Get all projects for a user.
  */
-export async function getProjects(userId) {
-  const q = query(
-    collection(db, 'projects'),
-    where('ownerId', '==', userId)
-  );
+export async function getProjects(userData) {
+  let q;
+  if (userData.role === 'admin') {
+    q = query(collection(db, 'projects'));
+  } else {
+    q = query(collection(db, 'projects'), where('memberEmails', 'array-contains', userData.email));
+  }
   const snap = await getDocs(q);
   const projs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   return projs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
@@ -42,11 +45,13 @@ export async function getProjects(userId) {
 /**
  * Real-time listener for user's projects.
  */
-export function onProjectsChange(userId, callback) {
-  const q = query(
-    collection(db, 'projects'),
-    where('ownerId', '==', userId)
-  );
+export function onProjectsChange(userData, callback) {
+  let q;
+  if (userData.role === 'admin') {
+    q = query(collection(db, 'projects'));
+  } else {
+    q = query(collection(db, 'projects'), where('memberEmails', 'array-contains', userData.email));
+  }
   return onSnapshot(q, (snap) => {
     const projs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     projs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
@@ -181,8 +186,8 @@ export async function getAllTokenStats() {
 /**
  * Export all projects with chats for a user.
  */
-export async function exportProjects(userId) {
-  const projects = await getProjects(userId);
+export async function exportProjects(userData) {
+  const projects = await getProjects(userData);
   const result = [];
 
   for (const project of projects) {
@@ -199,7 +204,7 @@ export async function exportProjects(userId) {
 /**
  * Import an array of projects with their chats.
  */
-export async function importProjects(userId, projects) {
+export async function importProjects(userId, email, projects) {
   let importedCount = 0;
 
   for (const projectData of projects) {
@@ -210,6 +215,7 @@ export async function importProjects(userId, projects) {
     await setDoc(projRef, {
       ...projectFields,
       ownerId: userId,
+      memberEmails: [email],
       createdAt: serverTimestamp()
     });
 

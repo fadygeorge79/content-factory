@@ -1,13 +1,13 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  root: '.',
   build: {
-    outDir: 'dist',
-    sourcemap: false,
-  },
-  server: {
-    port: 3000,
-    open: true,
-  },
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name].[hash]-${Date.now()}.js`,
+        chunkFileNames: `assets/[name].[hash]-${Date.now()}.js`,
+        assetFileNames: `assets/[name].[hash]-${Date.now()}.[ext]`
+      }
+    }
+  }
 });

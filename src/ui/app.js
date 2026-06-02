@@ -88,7 +88,7 @@ function subscribeProjects() {
   if (unsubProjects) unsubProjects();
   if (!currentUser) return;
 
-  unsubProjects = onProjectsChange(currentUser.uid, (projs) => {
+  unsubProjects = onProjectsChange(currentUserData, (projs) => {
     projects = projs;
 
     // If active project no longer exists, reset
@@ -137,7 +137,10 @@ function renderAll() {
     onSettings: handleOpenSettings,
     onExport: handleExport,
     onImport: handleImport,
-    onAdmin: handleAdmin
+    onAdmin: handleAdmin,
+    onRenameProject: handleRenameProject,
+    onShareProject: handleShareProject,
+    onDeleteProject: handleDeleteProject
   }, currentUserData);
 
   // Chat panel
@@ -205,7 +208,7 @@ function renderEmpty(container, message) {
 async function handleNewProject() {
   showNewProjectModal(async ({ name, brandName, accent }) => {
     try {
-      const proj = await createProject(currentUser.uid, { name, brandName, accent });
+      const proj = await createProject(currentUser.uid, currentUserData.email, { name, brandName, accent });
       setActiveProject(proj.id);
       closeAllModals();
       toast('Project created', 'ok');
@@ -450,21 +453,57 @@ async function handleDeleteSkill(index) {
   });
 }
 
-async function handleDeleteProject() {
+async function handleDeleteProject(id) {
+  const targetId = typeof id === 'string' ? id : activeProjectId;
+  if (!targetId) return;
+
   showConfirmModal('Delete this entire project and all its chats? This cannot be undone.', async () => {
     try {
-      await deleteProject(activeProjectId);
-      activeProjectId = null;
-      activeChatId = null;
-      localStorage.removeItem('cf_activeProject');
-      localStorage.removeItem('cf_activeChat');
+      await deleteProject(targetId);
+      if (activeProjectId === targetId) {
+        activeProjectId = null;
+        activeChatId = null;
+        localStorage.removeItem('cf_activeProject');
+        localStorage.removeItem('cf_activeChat');
+        currentView = 'chat';
+      }
       closeAllModals();
-      currentView = 'chat';
       toast('Project deleted', 'ok');
     } catch (err) {
       toast(err.message, 'err');
     }
   });
+}
+
+async function handleRenameProject(id) {
+  const proj = projects.find(p => p.id === id);
+  if (!proj) return;
+  
+  const newName = prompt('Enter new project name:', proj.name);
+  if (newName && newName.trim()) {
+    try {
+      await updateProject(id, { name: newName.trim() });
+      toast('Project renamed', 'ok');
+    } catch (err) {
+      toast(err.message, 'err');
+    }
+  }
+}
+
+async function handleShareProject(id) {
+  const proj = projects.find(p => p.id === id);
+  if (!proj) return;
+  
+  const email = prompt('Enter the email address of the user to share this project with:');
+  if (email && email.trim()) {
+    try {
+      const { arrayUnion } = await import('firebase/firestore');
+      await updateProject(id, { memberEmails: arrayUnion(email.trim().toLowerCase()) });
+      toast('Project shared successfully!', 'ok');
+    } catch (err) {
+      toast(err.message, 'err');
+    }
+  }
 }
 
 async function handleFilesAdded(fileList) {
@@ -503,7 +542,7 @@ async function handleFilesAdded(fileList) {
 
 async function handleExport() {
   try {
-    const data = await exportProjects(currentUser.uid);
+    const data = await exportProjects(currentUserData);
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -528,7 +567,7 @@ function handleImport() {
       const text = await file.text();
       const data = JSON.parse(text);
       if (!Array.isArray(data)) throw new Error('Invalid export format');
-      const count = await importProjects(currentUser.uid, data);
+      const count = await importProjects(currentUser.uid, currentUserData.email, data);
       toast(`Imported ${count} project(s)`, 'ok');
     } catch (err) {
       toast(err.message, 'err');
