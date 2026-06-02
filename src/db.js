@@ -32,11 +32,11 @@ export async function createProject(userId, { name, brandName, accent }) {
 export async function getProjects(userId) {
   const q = query(
     collection(db, 'projects'),
-    where('ownerId', '==', userId),
-    orderBy('createdAt', 'desc')
+    where('ownerId', '==', userId)
   );
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const projs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return projs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
 }
 
 /**
@@ -45,12 +45,12 @@ export async function getProjects(userId) {
 export function onProjectsChange(userId, callback) {
   const q = query(
     collection(db, 'projects'),
-    where('ownerId', '==', userId),
-    orderBy('createdAt', 'desc')
+    where('ownerId', '==', userId)
   );
   return onSnapshot(q, (snap) => {
-    const projects = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    callback(projects);
+    const projs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    projs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+    callback(projs);
   }, (err) => {
     console.error('Projects listener error:', err);
   });
