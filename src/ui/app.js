@@ -4,7 +4,7 @@
 
 import { onAuthChange, signOut, reauthenticate } from '../auth.js';
 import { onProjectsChange, onChatsChange, createProject, createChat, deleteChat, deleteProject, updateProject, updateChat, addMessage, updateUserTokens, exportProjects, importProjects } from '../db.js';
-import { buildSystem, briefingImages, sendMessage, readFileAsText, readFileAsBase64, isImageFile, isVideoFile, isAudioFile } from '../engine.js';
+import { buildSystem, briefingImages, sendMessage, updateProjectMemory, readFileAsText, readFileAsBase64, isImageFile, isVideoFile, isAudioFile } from '../engine.js';
 import { renderAuthScreen } from './auth-screen.js';
 import { renderRail } from './rail.js';
 import { renderChatPanel } from './chat-panel.js';
@@ -402,6 +402,14 @@ async function handleSend({ text, files }) {
     const tokenCount = result.tokens.actual || result.tokens.estimated;
     await updateUserTokens(currentUser.uid, activeProjectId, tokenCount);
 
+    // Learn: update the shared project memory in the background (never blocks chat)
+    maybeUpdateProjectMemory(project, apiMessages, result.text, {
+      provider,
+      apiKey,
+      model: settings.model || 'gpt-4o',
+      baseUrl: settings.baseUrl
+    });
+
   } catch (err) {
     console.error('Send error:', err);
     toast(err.message, 'err');
@@ -414,6 +422,37 @@ async function handleSend({ text, files }) {
   } finally {
     isSending = false;
     renderAll();
+  }
+}
+
+/**
+ * Distill the latest exchange into the project's shared memory.
+ * Fire-and-forget: any failure is logged and never affects the chat.
+ * When it saves, onProjectsChange refreshes the project everywhere.
+ */
+async function maybeUpdateProjectMemory(project, apiMessages, assistantText, opts) {
+  try {
+    if (!project || !project.id) return;
+
+    const transcript = [...apiMessages, { role: 'assistant', content: assistantText }]
+      .slice(-8)
+      .map(m => `${m.role === 'assistant' ? 'Assistant' : 'User'}: ${(m.content || '').slice(0, 2000)}`)
+      .join('\n\n');
+
+    const newMemory = await updateProjectMemory({
+      provider: opts.provider,
+      apiKey: opts.apiKey,
+      model: opts.model,
+      baseUrl: opts.baseUrl,
+      currentMemory: project.memory || '',
+      transcript
+    });
+
+    if (newMemory && newMemory !== (project.memory || '').trim()) {
+      await updateProject(project.id, { memory: newMemory });
+    }
+  } catch (err) {
+    console.warn('Project memory update skipped:', err?.message || err);
   }
 }
 

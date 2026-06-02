@@ -46,6 +46,16 @@ export function renderSetupView(container, project, callbacks) {
         <textarea class="setup-textarea" id="setup-system" placeholder="Enter your system prompt...">${escHtml(project.systemPrompt || '')}</textarea>
       </section>
 
+      <!-- Section: Project Memory -->
+      <section class="setup-section">
+        <div class="setup-section-header">
+          <h3 class="setup-section-title">Project Memory</h3>
+          <button class="btn btn-sm btn-line" id="setup-memory-clear">Clear</button>
+        </div>
+        <p class="setup-hint">Shared by every chat in this project and remembered across conversations. It builds automatically as you chat — capturing your preferences, recurring needs, and past corrections — and you can edit it directly.</p>
+        <textarea class="setup-textarea" id="setup-memory" placeholder="The assistant builds this automatically as you chat. You can also add notes here…">${escHtml(project.memory || '')}</textarea>
+      </section>
+
       <!-- Section 3: Skills -->
       <section class="setup-section">
         <div class="setup-section-header">
@@ -143,6 +153,16 @@ export function renderSetupView(container, project, callbacks) {
   // ── Auto-save: System Prompt ──
   document.getElementById('setup-system')?.addEventListener('input', (e) => {
     autoSave('systemPrompt', e.target.value);
+  });
+
+  // ── Project Memory: edit + clear ──
+  document.getElementById('setup-memory')?.addEventListener('input', (e) => {
+    autoSave('memory', e.target.value);
+  });
+  document.getElementById('setup-memory-clear')?.addEventListener('click', () => {
+    const ta = document.getElementById('setup-memory');
+    if (ta) ta.value = '';
+    callbacks.onUpdate({ memory: '' });
   });
 
   // ── Skills ──

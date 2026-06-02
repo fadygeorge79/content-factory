@@ -17,6 +17,14 @@ export function buildSystem(project, chat) {
     parts.push(project.systemPrompt.trim());
   }
 
+  // 1b. Project memory — shared by every chat in the project and learned
+  //     over time. Reflects the user's established preferences, needs,
+  //     decisions, and past corrections.
+  if (project.memory && project.memory.trim()) {
+    parts.push('--- PROJECT MEMORY (shared across all chats in this project; honor these established preferences, facts, decisions, and corrections) ---');
+    parts.push(project.memory.trim());
+  }
+
   // 2. Enabled skills
   if (project.skills && project.skills.length > 0) {
     const enabledSkills = project.skills.filter(s => s.enabled !== false);
@@ -46,6 +54,59 @@ export function buildSystem(project, chat) {
   }
 
   return parts.join('\n\n');
+}
+
+/**
+ * Maintain a project's long-term MEMORY. Given the current memory and a
+ * recent transcript, ask the model to return an updated memory that merges
+ * new, durable information (preferences, needs, brand facts, decisions,
+ * corrections) and drops stale/trivial detail. Shared by every chat in the
+ * project via buildSystem(). Returns the new memory string.
+ */
+export async function updateProjectMemory({ provider, apiKey, model, baseUrl, currentMemory, transcript }) {
+  const system = [
+    'You maintain a long-term MEMORY for a content project. This memory is shared by every chat in the project and persists across conversations. Read the existing memory and the latest conversation, then output an updated memory.',
+    '',
+    'Capture and keep:',
+    "- The user's stable preferences (tone, style, format, language, dos and don'ts)",
+    '- Recurring needs, goals, and the kind of help they want',
+    '- Durable facts about their brand, product, and audience',
+    '- Decisions made and directions chosen',
+    '- Mistakes or corrections the user pointed out, so they are not repeated',
+    '',
+    'Rules:',
+    '- Output ONLY the updated memory as concise markdown bullet points grouped under short headers (e.g. Preferences, Brand, Goals, Avoid).',
+    '- Merge new information into the existing memory; never duplicate a point.',
+    '- Remove anything now outdated or contradicted.',
+    '- Keep it tight: at most ~1200 words. Drop one-off, trivial, or single-chat-specific details.',
+    '- No greetings, no commentary, and do not copy the conversation. Output the memory only.',
+    '- If nothing meaningful changed, return the existing memory unchanged.'
+  ].join('\n');
+
+  const user = [
+    'EXISTING MEMORY:',
+    (currentMemory && currentMemory.trim()) ? currentMemory.trim() : '(empty)',
+    '',
+    'LATEST CONVERSATION (most recent turns):',
+    transcript,
+    '',
+    'Return the updated memory now.'
+  ].join('\n');
+
+  const result = await sendMessage({
+    provider,
+    apiKey,
+    model,
+    baseUrl,
+    maxTokens: 1024,
+    temp: 0.3,
+    system,
+    messages: [{ role: 'user', content: user }]
+  });
+
+  let memory = (result.text || '').trim();
+  if (memory.length > 8000) memory = memory.slice(0, 8000); // safety cap
+  return memory;
 }
 
 /**

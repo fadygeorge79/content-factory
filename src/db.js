@@ -21,6 +21,7 @@ export async function createProject(userId, email, { name, brandName, accent }) 
     skills: [],
     files: [],
     systemPrompt: '',
+    memory: '',
     createdAt: serverTimestamp()
   };
   await setDoc(ref, data);
