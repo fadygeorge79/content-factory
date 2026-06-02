@@ -374,6 +374,75 @@ export function showConfirmModal(message, callback) {
   });
 }
 
+/**
+ * Password-confirmation modal for sensitive actions.
+ * `onConfirm(password)` runs the action and may throw (e.g. wrong
+ * password); the modal stays open and shows the error in that case,
+ * and closes automatically on success.
+ */
+export function showPasswordModal({ title = 'Confirm Password', message = '', confirmText = 'Confirm', danger = false } = {}, onConfirm) {
+  const { modal, close } = createModalContainer();
+
+  modal.innerHTML = `
+    <div class="modal-header">
+      <h3 class="modal-title">${escHtml(title)}</h3>
+      <button class="modal-close" title="Close">×</button>
+    </div>
+    <div class="modal-body">
+      ${message ? `<p style="color:var(--text-dim); font-size:14px; line-height:1.6; margin-bottom:16px;">${escHtml(message)}</p>` : ''}
+      <div class="field-group">
+        <label class="field-label">Your Password</label>
+        <input type="password" id="pw-input" class="field" placeholder="••••••••" autocomplete="current-password">
+        <div class="field-error" id="pw-error" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="pw-cancel">Cancel</button>
+      <button class="btn ${danger ? 'btn-danger' : 'btn-y'}" id="pw-confirm">${escHtml(confirmText)}</button>
+    </div>
+  `;
+
+  const input = modal.querySelector('#pw-input');
+  const errEl = modal.querySelector('#pw-error');
+  const confirmBtn = modal.querySelector('#pw-confirm');
+
+  modal.querySelector('.modal-close').addEventListener('click', close);
+  modal.querySelector('#pw-cancel').addEventListener('click', close);
+
+  const submit = async () => {
+    const password = input.value;
+    if (!password) {
+      input.classList.add('error');
+      input.focus();
+      return;
+    }
+    confirmBtn.classList.add('loading');
+    confirmBtn.disabled = true;
+    errEl.style.display = 'none';
+    input.classList.remove('error');
+    try {
+      await onConfirm(password);
+      close();
+    } catch (err) {
+      input.classList.add('error');
+      errEl.textContent = err?.message || 'Something went wrong';
+      errEl.style.display = 'flex';
+      confirmBtn.classList.remove('loading');
+      confirmBtn.disabled = false;
+      input.focus();
+      input.select();
+    }
+  };
+
+  confirmBtn.addEventListener('click', submit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submit();
+    input.classList.remove('error');
+  });
+
+  setTimeout(() => input.focus(), 50);
+}
+
 // ── Toasts ───────────────────────────────────────────────
 
 export function toast(message, type = 'info') {

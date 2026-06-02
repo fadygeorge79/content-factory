@@ -36,7 +36,7 @@ export function renderRail(container, projects, activeProjectId, callbacks, user
             <div class="rail-item-actions">
               <button class="rail-action-btn" data-action="share" data-id="${p.id}" title="Share">🤝</button>
               <button class="rail-action-btn" data-action="rename" data-id="${p.id}" title="Rename">✏️</button>
-              <button class="rail-action-btn" data-action="delete" data-id="${p.id}" title="Delete">🗑️</button>
+              ${isAdmin ? `<button class="rail-action-btn" data-action="delete" data-id="${p.id}" title="Delete">🗑️</button>` : ''}
             </div>
           </div>
         `).join('')}

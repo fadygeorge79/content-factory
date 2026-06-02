@@ -2,7 +2,7 @@
  * ui/app.js — Main app shell, routing, state management.
  */
 
-import { onAuthChange, signOut } from '../auth.js';
+import { onAuthChange, signOut, reauthenticate } from '../auth.js';
 import { onProjectsChange, onChatsChange, createProject, createChat, deleteChat, deleteProject, updateProject, updateChat, addMessage, updateUserTokens, exportProjects, importProjects } from '../db.js';
 import { buildSystem, briefingImages, sendMessage, readFileAsText, readFileAsBase64, isImageFile, isVideoFile, isAudioFile } from '../engine.js';
 import { renderAuthScreen } from './auth-screen.js';
@@ -11,7 +11,7 @@ import { renderChatPanel } from './chat-panel.js';
 import { renderChatView } from './chat-view.js';
 import { renderSetupView } from './setup-view.js';
 import { renderAdmin } from './admin.js';
-import { showNewProjectModal, showSettingsModal, showSkillModal, showConfirmModal, closeAllModals, toast } from './modals.js';
+import { showNewProjectModal, showSettingsModal, showSkillModal, showConfirmModal, showPasswordModal, closeAllModals, toast } from './modals.js';
 
 let currentUser = null;
 let currentUserData = null;
@@ -166,6 +166,7 @@ function renderAll() {
     });
   } else if (currentView === 'setup' && activeProject) {
     renderSetupView(main, activeProject, {
+      isAdmin: currentUserData?.role === 'admin',
       onUpdate: (data) => updateProject(activeProjectId, data),
       onBack: () => { currentView = 'chat'; renderAll(); },
       onAddSkill: handleAddSkill,
@@ -457,21 +458,32 @@ async function handleDeleteProject(id) {
   const targetId = typeof id === 'string' ? id : activeProjectId;
   if (!targetId) return;
 
-  showConfirmModal('Delete this entire project and all its chats? This cannot be undone.', async () => {
-    try {
-      await deleteProject(targetId);
-      if (activeProjectId === targetId) {
-        activeProjectId = null;
-        activeChatId = null;
-        localStorage.removeItem('cf_activeProject');
-        localStorage.removeItem('cf_activeChat');
-        currentView = 'chat';
-      }
-      closeAllModals();
-      toast('Project deleted', 'ok');
-    } catch (err) {
-      toast(err.message, 'err');
+  // Only admins may delete projects.
+  if (!currentUserData || currentUserData.role !== 'admin') {
+    toast('Only an admin can delete projects', 'err');
+    return;
+  }
+
+  showPasswordModal({
+    title: 'Delete Project',
+    message: 'This permanently deletes the project and all of its chats. Enter your admin password to confirm.',
+    confirmText: 'Delete Project',
+    danger: true
+  }, async (password) => {
+    // Verify the admin's password — throws on failure, keeping the modal open.
+    await reauthenticate(password);
+
+    // Password confirmed → perform the deletion.
+    await deleteProject(targetId);
+    if (activeProjectId === targetId) {
+      activeProjectId = null;
+      activeChatId = null;
+      localStorage.removeItem('cf_activeProject');
+      localStorage.removeItem('cf_activeChat');
+      currentView = 'chat';
     }
+    toast('Project deleted', 'ok');
+    renderAll();
   });
 }
 

@@ -105,11 +105,14 @@ export function renderSetupView(container, project, callbacks) {
         </div>
       </section>
 
-      <!-- Danger Zone -->
+      ${callbacks.isAdmin ? `
+      <!-- Danger Zone (admins only) -->
       <section class="setup-section setup-danger">
         <h3 class="setup-section-title">Danger Zone</h3>
+        <p class="setup-hint">Only an admin can delete a project. You'll be asked to re-enter your password to confirm.</p>
         <button class="btn btn-danger" id="setup-delete-project">🗑️ Delete Project</button>
       </section>
+      ` : ''}
     </div>
   `;
 

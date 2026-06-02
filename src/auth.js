@@ -2,7 +2,9 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from 'firebase/auth';
 import {
   doc, setDoc, getDoc, getDocs, collection,
@@ -74,6 +76,40 @@ export async function signIn(email, password) {
  */
 export async function signOut() {
   await firebaseSignOut(auth);
+}
+
+/**
+ * Re-authenticate the currently signed-in user with their password.
+ * Used to confirm sensitive actions (e.g. deleting a project).
+ * Throws Error('Incorrect password') when the password is wrong.
+ */
+export async function reauthenticate(password) {
+  const user = auth.currentUser;
+  if (!user || !user.email) throw new Error('You are not signed in');
+  try {
+    const cred = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, cred);
+  } catch (err) {
+    const code = err && err.code;
+    if (
+      code === 'auth/wrong-password' ||
+      code === 'auth/invalid-credential' ||
+      code === 'auth/invalid-login-credentials'
+    ) {
+      throw new Error('Incorrect password');
+    }
+    if (code === 'auth/too-many-requests') {
+      throw new Error('Too many attempts. Please try again later.');
+    }
+    throw new Error('Could not verify password. Please try again.');
+  }
+}
+
+/**
+ * Is the given user record an admin?
+ */
+export function isAdminUser(userData) {
+  return !!userData && userData.role === 'admin';
 }
 
 /**
