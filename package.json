@@ -1,0 +1,19 @@
+{
+  "name": "content-factory-v2",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.0.12"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.7",
+    "firebase": "^12.14.0",
+    "marked": "^18.0.4"
+  }
+}

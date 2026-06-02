@@ -1,0 +1,535 @@
+/* ============================================================
+   AUTH.CSS — Content Factory v2
+   Auth Layout · Login Card · Tabs · Pending Approval
+   ============================================================ */
+
+/* ══════════════════════════════════════════════════════════
+   AUTH LAYOUT
+   ══════════════════════════════════════════════════════════ */
+
+.auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Background Glow ──────────────────────────────────────── */
+
+.auth::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 50% at 50% 40%, rgba(254, 218, 0, .06) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 60% at 20% 80%, rgba(254, 218, 0, .03) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 85% 20%, rgba(254, 218, 0, .025) 0%, transparent 55%),
+    radial-gradient(circle at 50% 50%, var(--bg-1) 0%, var(--bg) 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Dot / Particle pattern ───────────────────────────────── */
+
+.auth::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, .03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Floating orbs (ambient decoration) ───────────────────── */
+
+.auth-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-orb-1 {
+  width: 400px;
+  height: 400px;
+  background: rgba(254, 218, 0, .04);
+  top: -100px;
+  right: -100px;
+  animation: float 8s ease-in-out infinite;
+}
+
+.auth-orb-2 {
+  width: 300px;
+  height: 300px;
+  background: rgba(254, 218, 0, .03);
+  bottom: -80px;
+  left: -80px;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   AUTH CARD
+   ══════════════════════════════════════════════════════════ */
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 48px;
+  background: rgba(14, 14, 16, .88);
+  backdrop-filter: blur(40px) saturate(1.5);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-lg);
+  box-shadow:
+    var(--shadow),
+    0 0 0 1px rgba(255, 255, 255, .03),
+    0 0 100px rgba(254, 218, 0, .04);
+  animation: popIn 500ms var(--ease-spring) both;
+}
+
+/* Top accent gradient line */
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--yellow-border) 25%,
+    var(--yellow) 50%,
+    var(--yellow-border) 75%,
+    transparent 100%
+  );
+  border-radius: 1px;
+}
+
+/* Subtle bottom reflection */
+.auth-card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 48px;
+  right: 48px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--line),
+    transparent
+  );
+}
+
+
+/* ── Spark Logo ───────────────────────────────────────────── */
+
+.auth-spark {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.auth-spark .spark {
+  animation: float 3s ease-in-out infinite, glowPulse 3s ease-in-out infinite;
+}
+
+
+/* ── Title ────────────────────────────────────────────────── */
+
+.auth-title {
+  text-align: center;
+  margin-bottom: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-mute);
+  margin-bottom: 32px;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   TAB SWITCHER
+   ══════════════════════════════════════════════════════════ */
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 28px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 3px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-mute);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.auth-tab:hover {
+  color: var(--text-dim);
+}
+
+.auth-tab.active {
+  background: var(--yellow);
+  color: #000;
+  box-shadow: 0 2px 12px rgba(254, 218, 0, .25);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   FORM
+   ══════════════════════════════════════════════════════════ */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.auth-input {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    background var(--transition-base);
+}
+
+.auth-input::placeholder {
+  color: var(--text-mute);
+}
+
+.auth-input:hover {
+  border-color: var(--line-2);
+}
+
+.auth-input:focus {
+  border-color: var(--yellow);
+  background: var(--bg);
+  box-shadow:
+    0 0 0 3px var(--yellow-glow),
+    0 0 24px rgba(254, 218, 0, .06);
+  outline: none;
+}
+
+.auth-input.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(255, 91, 91, .12);
+}
+
+
+/* ── Submit Button ────────────────────────────────────────── */
+
+.auth-submit {
+  width: 100%;
+  padding: 14px;
+  margin-top: 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #000;
+  background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow-2) 50%, var(--yellow-deep) 100%);
+  background-size: 200% 200%;
+  border: none;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow:
+    0 4px 20px rgba(254, 218, 0, .25),
+    inset 0 1px 0 rgba(255, 255, 255, .15);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-submit:hover {
+  animation: gradientShift 3s ease infinite;
+  box-shadow:
+    0 6px 30px rgba(254, 218, 0, .35),
+    inset 0 1px 0 rgba(255, 255, 255, .2);
+  transform: translateY(-1px);
+}
+
+.auth-submit:active {
+  transform: translateY(0) scale(.98);
+  box-shadow: 0 2px 10px rgba(254, 218, 0, .2);
+}
+
+/* Shine effect */
+.auth-submit::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, .18) 50%,
+    transparent 100%
+  );
+  transition: left 600ms var(--ease-out-expo);
+}
+
+.auth-submit:hover::after {
+  left: 130%;
+}
+
+.auth-submit:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+  animation: none;
+}
+
+/* Loading state */
+.auth-submit.loading {
+  color: transparent;
+  pointer-events: none;
+}
+
+.auth-submit.loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(0, 0, 0, .2);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 600ms linear infinite;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   MESSAGES (Error / Success)
+   ══════════════════════════════════════════════════════════ */
+
+.auth-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(255, 91, 91, .08);
+  border: 1px solid rgba(255, 91, 91, .2);
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 500;
+  animation: slideInUp 300ms var(--ease-out-expo) both;
+}
+
+.auth-error::before {
+  content: '⚠';
+  flex-shrink: 0;
+}
+
+.auth-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  background: rgba(74, 222, 128, .08);
+  border: 1px solid rgba(74, 222, 128, .2);
+  color: var(--ok);
+  font-size: 13px;
+  font-weight: 500;
+  animation: slideInUp 300ms var(--ease-out-expo) both;
+}
+
+.auth-success::before {
+  content: '✓';
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   PENDING APPROVAL SCREEN
+   ══════════════════════════════════════════════════════════ */
+
+.auth-pending {
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* Pulsing ring animation */
+.auth-pending-anim {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+}
+
+.auth-pending-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--yellow-border);
+  animation: pendingPulse 2s ease-in-out infinite;
+}
+
+.auth-pending-ring:nth-child(2) {
+  animation-delay: 500ms;
+  inset: 8px;
+}
+
+.auth-pending-ring:nth-child(3) {
+  animation-delay: 1000ms;
+  inset: 16px;
+}
+
+.auth-pending-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--yellow);
+  box-shadow: 0 0 20px rgba(254, 218, 0, .4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pendingPulse {
+  0%, 100% {
+    opacity: .3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: .8;
+    transform: scale(1.1);
+  }
+}
+
+.auth-pending-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--yellow);
+}
+
+.auth-pending-text {
+  font-size: 14px;
+  color: var(--text-mute);
+  line-height: 1.6;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   SEPARATOR
+   ══════════════════════════════════════════════════════════ */
+
+.auth-sep {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 4px 0;
+  color: var(--text-mute);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.auth-sep::before,
+.auth-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   FOOTER LINK
+   ══════════════════════════════════════════════════════════ */
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-mute);
+}
+
+.auth-footer a {
+  color: var(--yellow);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 12px var(--yellow-glow);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 32px 24px;
+    border-radius: var(--r);
+  }
+
+  .auth-title {
+    font-size: 20px;
+  }
+}
