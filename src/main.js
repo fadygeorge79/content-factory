@@ -7,7 +7,8 @@ import './styles/admin.css';
 
 import { initApp } from './ui/app.js';
 
-// Wait for DOM to be ready
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
   initApp();
-});
+}

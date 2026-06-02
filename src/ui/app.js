@@ -193,9 +193,9 @@ function renderAll() {
 
 function renderEmpty(container, message) {
   container.innerHTML = `
-    <div class="empty-state">
-      <div class="empty-spark">✦</div>
-      <p>${message}</p>
+    <div class="main-empty">
+      <div class="main-empty-icon">✦</div>
+      <p class="main-empty-desc">${message}</p>
     </div>
   `;
 }

@@ -37,9 +37,9 @@ export function renderChatView(container, project, chat, settings, callbacks, is
 
       <div class="chat-messages" id="chat-messages">
         ${messages.length === 0 ? `
-          <div class="chat-empty">
-            <div class="chat-empty-spark">✦</div>
-            <p>Start a conversation</p>
+          <div class="main-empty">
+            <div class="main-empty-icon">✦</div>
+            <p class="main-empty-desc">Start a conversation</p>
           </div>
         ` : messages.map((msg, i) => renderMessage(msg, i)).join('')}
         ${isSending ? `

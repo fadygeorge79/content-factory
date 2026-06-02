@@ -1,14 +1,16 @@
+redirectsOrigin = "config"
 plugins = []
 headers = []
-redirects = []
 
 [functions]
 
 [functions."*"]
 
 [build]
-publish = "C:\\Users\\pc\\.gemini\\antigravity\\scratch\\content-factory"
-publishOrigin = "default"
+publish = "C:\\Users\\pc\\.gemini\\antigravity\\scratch\\content-factory\\dist"
+publishOrigin = "config"
+commandOrigin = "config"
+command = "npm run build"
 
 [build.environment]
 
@@ -23,3 +25,15 @@ publishOrigin = "default"
 [build.processing.js]
 
 [build.services]
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200.0
+force = false
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
