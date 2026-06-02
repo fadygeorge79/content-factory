@@ -14,6 +14,16 @@
 /* ── Utility ──────────────────────────────────────────────── */
 .hidden { display: none !important; }
 
+/* Main content area must scroll when a view is taller than the
+   viewport. body and .app are overflow:hidden and .main had no
+   overflow, so tall pages (e.g. the Setup view) were clipped with
+   no way to reach the lower sections. The chat view fits exactly
+   and admin scrolls internally, so neither gains an extra scrollbar. */
+.main {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* ══════════════════════════════════════════════════════════
    APP SHELL — Rail inner / Chats panel inner
    ══════════════════════════════════════════════════════════ */
