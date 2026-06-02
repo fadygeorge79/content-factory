@@ -145,9 +145,16 @@ export async function deleteChat(projectId, chatId) {
  * Add a message to a chat using arrayUnion.
  */
 export async function addMessage(projectId, chatId, message) {
+  // Firestore's arrayUnion rejects objects that contain `undefined`
+  // values (e.g. `images: undefined` on a text-only message), so strip
+  // any undefined fields before writing.
+  const clean = {};
+  for (const [key, value] of Object.entries(message)) {
+    if (value !== undefined) clean[key] = value;
+  }
   await updateDoc(doc(db, 'projects', projectId, 'chats', chatId), {
     messages: arrayUnion({
-      ...message,
+      ...clean,
       timestamp: Date.now()
     })
   });
