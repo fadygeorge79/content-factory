@@ -4,6 +4,7 @@ import './styles/components.css';
 import './styles/chat.css';
 import './styles/auth.css';
 import './styles/admin.css';
+import './styles/fixes.css';
 
 import { initApp } from './ui/app.js';
 
