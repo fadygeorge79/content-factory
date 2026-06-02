@@ -17,7 +17,7 @@ export function renderRail(container, projects, activeProjectId, callbacks, user
         </div>
       </div>
 
-      <button class="btn btn-primary btn-block rail-new-project" id="rail-new-project">
+      <button class="rail-new-btn" id="rail-new-project">
         <span class="btn-icon">+</span> New Project
       </button>
 
@@ -27,11 +27,11 @@ export function renderRail(container, projects, activeProjectId, callbacks, user
             <p>No projects yet</p>
           </div>
         ` : projects.map(p => `
-          <div class="rail-project ${p.id === activeProjectId ? 'active' : ''}" data-id="${p.id}">
-            <div class="rail-project-dot" style="background:${p.accent || '#facc15'}"></div>
-            <div class="rail-project-info">
-              <div class="rail-project-name">${escHtml(p.name)}</div>
-              ${p.brandName ? `<div class="rail-project-brand">${escHtml(p.brandName)}</div>` : ''}
+          <div class="rail-item ${p.id === activeProjectId ? 'active' : ''}" data-id="${p.id}">
+            <div class="rail-item-icon" style="color:${p.accent || '#facc15'}; border-color:${p.accent || '#facc15'}">${escHtml(p.name).charAt(0).toUpperCase()}</div>
+            <div class="rail-item-text">
+              <div class="rail-item-name">${escHtml(p.name)}</div>
+              ${p.brandName ? `<div class="rail-item-meta">${escHtml(p.brandName)}</div>` : ''}
             </div>
           </div>
         `).join('')}
@@ -60,7 +60,7 @@ export function renderRail(container, projects, activeProjectId, callbacks, user
   });
 
   // Event: Select Project
-  container.querySelectorAll('.rail-project').forEach(el => {
+  container.querySelectorAll('.rail-item').forEach(el => {
     el.addEventListener('click', () => {
       callbacks.onSelectProject(el.dataset.id);
     });

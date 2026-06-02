@@ -35,13 +35,13 @@ export function renderChatPanel(container, project, chats, activeChatId, callbac
             <p class="cpanel-empty-hint">Create a chat to start a conversation</p>
           </div>
         ` : chats.map(chat => `
-          <div class="cpanel-chat ${chat.id === activeChatId ? 'active' : ''}" data-id="${chat.id}">
-            <div class="cpanel-chat-icon">💬</div>
-            <div class="cpanel-chat-info">
-              <div class="cpanel-chat-title">${escHtml(chat.title)}</div>
-              <div class="cpanel-chat-meta">${chat.messages ? chat.messages.length : 0} messages</div>
+          <div class="cpanel-item ${chat.id === activeChatId ? 'active' : ''}" data-id="${chat.id}">
+            <div style="font-size: 16px; margin-top: 2px;">💬</div>
+            <div style="flex: 1; min-width: 0;">
+              <div class="cpanel-item-title">${escHtml(chat.title)}</div>
+              <div class="cpanel-item-preview">${chat.messages ? chat.messages.length : 0} messages</div>
             </div>
-            <button class="cpanel-chat-delete" data-id="${chat.id}" title="Delete chat">×</button>
+            <button class="cpanel-chat-delete" data-id="${chat.id}" title="Delete chat" style="background:none; border:none; color:var(--text-mute); font-size:16px; cursor:pointer;">×</button>
           </div>
         `).join('')}
       </div>
@@ -59,7 +59,7 @@ export function renderChatPanel(container, project, chats, activeChatId, callbac
   });
 
   // Event: Select Chat
-  container.querySelectorAll('.cpanel-chat').forEach(el => {
+  container.querySelectorAll('.cpanel-item').forEach(el => {
     el.addEventListener('click', (e) => {
       // Don't select if clicking delete button
       if (e.target.classList.contains('cpanel-chat-delete')) return;
